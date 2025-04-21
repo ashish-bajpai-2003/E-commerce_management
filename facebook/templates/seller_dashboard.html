@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
 {% block content %}
-<h2>Welcome Seller {{ request.user.username }}</h2>
+<div class="col-sm-5" style="margin-top:50px;">
+<h2>Welcome Seller :{{ request.user.username }}</h2>
 {% endblock content %}

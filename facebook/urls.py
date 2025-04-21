@@ -10,4 +10,7 @@ urlpatterns = [
     path('logout/', views.user_logout, name='logout'),
     path('dashboard/', views.dashboard, name='dashboard'),
     path('verify-otp/', views.verify_otp, name='verify_otp'),
+    path('approve_seller/<int:seller_id>/', views.approve_seller, name='approve_seller'),
+    path('unapprove_seller/<int:seller_id>/', views.unapprove_seller, name='notapprove_seller'),
+    path('product/',views.product,name='products')
 ]

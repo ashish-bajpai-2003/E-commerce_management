@@ -1,11 +1,16 @@
 {% extends 'base.html' %}
 {% load static %}
 {% block content %}
-<div class="mask d-flex justify-content-center align-items-center vh-100 gradient-custom-3">
+{% if messages %}
+{% for message in messages %}
+<p {% if message.tags %} class="alert alert-{{message.tags}} mb-5" {% endif %}>{{message}}</p>
+{% endfor %}
+{% endif %}
+<div class="mask d-flex justify-content-center align-items-center vh-100 gradient-custom-5">
     <div class="container">
         <div class="row d-flex justify-content-center align-items-center">
             <div class="col-12 col-md-5 col-lg-7 col-xl-6">
-                <div class="card" style="border-radius: 10px; height: 400px; overflow: hidden;">
+                <div class="card" style="border-radius: 10px; height: 450px; overflow: hidden;">
                     <div class="card-body p-5">
               <h2 class="text-uppercase text-center mb-5"><u>LOGIN</u></h2>
             <form action="" method="post">
@@ -15,8 +20,17 @@
                 </div>
                 <div data-mdb-input-init class="form-outline mb-4">
                   <input type="password" id="password" name="password" class="form-control form-control-lg" placeholder="Password"/>
+                </div>
+                <div style="background-color: #f0f9ff; padding: 10px; display: inline-block; border-radius: 10px;">
+                {% comment %} <div class="form-outline mb-4"> {% endcomment %}
+                  {{ form.captcha }}
                 </div><br>
-
+              <!-- Error Message -->
+                {% if error %}
+                  <div class="text-danger mb-3 text-center">
+                      {{ error }}
+                  </div>
+                {% endif %}<br>
                 <div class="d-flex justify-content-center">
                   <input type="submit" value="Login" class="btn btn-success">
                 </div>

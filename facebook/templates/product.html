@@ -1,0 +1,75 @@
+{% extends 'base.html'%}
+{% load static %}
+{% block content %}
+<div class="text-center fs-2">
+    Our <b class="txt-mycolor">Product<i class="fa-brands fa-product-hunt"></i>
+</b>
+</div>
+<div class="row">
+    <div class="col-sm-3">
+    <ul class="list-group">
+  <li class="list-group-item bg-mycolor text-light fs-3" style="font-family:FZShuTi;" aria-current="true">
+      Sub Category</li>
+ {% for i in subcat %}
+ <a href="/product?sid={{i.id}}" style="text-decoration:none;font-family:STXinwei;"> <li class="list-group-item fs-3">{{i.subcategory_name}}</li></a>
+
+        {% endfor %}
+</ul>
+    </div>
+<div class="col-sm-9">
+<div class="row">
+  {% for x in pdata %}
+        <div class="col-lg-3 col-md-6 col-sm-12">
+            <!-- start product -->
+            <div class="card mt-2">
+                <img src="/{{x.product_pic}}" class="card-img-top"/>
+                <div class="card-body">
+<!--               <b>{{x.subcategory_name}}</b><br/>-->
+                    <b>{{x.veg_name}}</b><br/>
+                    {{x.product_quantity}}
+                    <br/><s><i class="fa-solid fa-indian-rupee-sign"></i>{{x.price}}</s>
+                    <b><i class="fa-solid fa-indian-rupee-sign"></i>
+                        {{x.discount_price}}</b>
+                    <form method="get" action="/mycart/">
+                <div class="input-group">
+                    <b class="input-group-text" onclick="funm{{x.id}}()">
+                        <i class="fa-solid fa-minus"></i>
+                    </b>
+                    <input type="hidden" value="{{x.veg_name}}" name="pname"/>
+                    <input type="hidden" value="{{x.price}}" name="price"/>
+                    <input type="hidden" value="{{x.product_pic}}" name="ppic"/>
+                    <input type="hidden" value="{{x.product_quantity}}" name="pw"/>
+                    <input type="text" name="qt" value="0" id="txtcard{{x.id}}" readonly class="form-control fs-5 text-center"/>
+                    <b class="input-group-text"  onclick="funp{{x.id}}()">
+                        <i class="fa-solid fa-plus"></i>
+                    </b>
+                </div>
+                    <input type="submit" class="btn bg-mycolor text-light mt-1" value="Add"/>
+                </form>
+                </div>
+
+            </div>
+            <!-- end product -->
+        </div>
+                <script>
+                var i{{x.id}}=0;
+                  var txtc{{x.id}}=document.getElementById("txtcard{{x.id}}");
+                  function funp{{x.id}}()
+                  {
+                  i{{x.id}}++;
+                  txtc{{x.id}}.value=i{{x.id}};
+                  }
+                  function funm{{x.id}}()
+                  {
+                  if(i{{x.id}}>0)
+                  {
+                  i{{x.id}}--;
+                  txtc{{x.id}}.value=i{{x.id}};
+                  }
+                  }
+            </script>
+        {% endfor %}
+</div>
+    </div>
+</div>
+{% endblock content %}

@@ -8,10 +8,77 @@
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <title>Document</title>
-</head>
 
+
+
+    <style>
+        body{
+            background:rgb(10, 100, 100)
+        }
+        .bg-mycolor{
+            background:rgb(10, 20, 10)
+        }
+        .txt-mycolor{
+            color:black;
+        }
+        .fa-brands:hover
+        {
+        transform:rotate(360deg);
+        transition:all 2s;
+        background:white;
+<!--        color:#1C768F;-->
+        }
+        .fa-square-facebook:hover{
+            color:#1877F2;
+            }
+            .fa-square-twitter:hover{
+            color:#1DA1F2;
+            }
+            .fa-square-instagram:hover{
+            color:#DD2A7B;
+            }
+            .fa-square-whatsapp:hover{
+            color:#128C7E
+            }
+            .fa-square-youtube:hover{
+            color:#FF0000;
+            }
+            .fa-linkedin:hover{
+            color:#0e76a8;
+            }
+    </style>
+
+</head>
 <body>
-    <div class="container-fluid bg-dark">
+    <div class='container-fluid'>
+        <div class='row  t1 text-center bg-mycolor text-light py-1'>
+            <div class='col-lg-5 col-md-6 col-sm-12'>
+                <i class="fa-solid fa-phone-volume fa-shake"></i> +91,8174941029
+            </div>
+            <div class="col-lg-3 col-md-6 col-sm-12">
+                <i class="fa-solid fa-envelopes-bulk"></i> swettrivedi981@gmail.com
+            </div>
+            <div class="col-lg-3 col-md-6 col-sm-12">
+                <i class="fa-brands fa-square-facebook iconA"></i>
+                <i class="fa-brands fa-square-twitter iconA"></i>
+                <i class="fa-brands fa-square-instagram iconA"></i>
+                <a href="https://www.linkedin.com/in/swet-trivedi-61603328b000000000000" target="_blank"><i class="fa-brands fa-linkedin icon iconA"></i></a>
+            </div>
+        </div>
+        <div class='row t2'>
+            <div class='col-sm-10 mx-auto'>
+                <div class='row my-2'>
+                    <div class="col-sm-4 fs-2 " style="color:white">
+                        Grocery<b class="txt-mycolor">Shop
+                                <marquee behavior="" direction="right"><i class="fa-solid fa-truck-fast"></i></b></marquee>
+                </div>
+            </div>    
+        <div>
+        </div>
+
+
+
+    <div class="container-fluid ">
         {% include 'nav.html' %}
     </div>
     <div class="container">
