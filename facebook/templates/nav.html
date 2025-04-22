@@ -12,37 +12,30 @@
           <li class="nav-item">
             <a class="nav-link active" aria-current="page" href="{% url 'home' %}">Contact</a>
           </li>
-          {% comment %} <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle  text-black" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-              Role
-            </a>
-            <ul class="dropdown-menu">
-               <li><a class="dropdown-item" href="{% url 'register_customer' %}">Register as Customer</a></li>
-               <li><a class="dropdown-item" href="{% url 'register_seller' %}">Register as Seller</a></li>
-               <li><a class="dropdown-item" href="{% url 'register_admin' %}">Register as Admin</a></li>
-            </ul>
-          </li>  {% endcomment %}
+          <li class="nav-item">
+            <a class="nav-link active" aria-current="page" href="{% url 'aboutus' %}">About</a>
+          </li>
           {% if request.user.is_authenticated %} 
-            <li class="nav-item">
-              <a class="nav-link text-black" href="{% url 'dashboard' %}">Dashboard</a>
-            </li>
-            <li class="nav-item">
+          {% if user.user_type == 'admin' %}
+          <a class="nav-link text-black" href="{% url 'admin_dashboard' %}">Dashboard</a>
+          {% elif user.user_type == 'seller' %}
+          <a class="nav-link text-black" href="{% url 'seller_dashboard' %}">Dashboard</a>
+          {% elif user.user_type == 'customer' %}
+          <a class="nav-link text-black" href="{% url 'customer_dashboard' %}">Dashboard</a>
+          {% endif %}
+             <li class="nav-item">
               <a class="nav-link text-black" href="{% url 'logout' %}">Logout</a>
-            </li>
+             </li>
           {% else %}
-          <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle  text-black" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-              Role
-            </a>
-            <ul class="dropdown-menu">
-               <li><a class="dropdown-item" href="{% url 'register_customer' %}">Register as Customer</a></li>
-               <li><a class="dropdown-item" href="{% url 'register_seller' %}">Register as Seller</a></li>
-               <li><a class="dropdown-item" href="{% url 'register_admin' %}">Register as Admin</a></li>
-            </ul>
-          </li> 
+    
+          <li class="nav-item">
+            <a class="nav-link active" aria-current="page" href="{% url 'register_user' %}">Register</a>
+          </li>
+               
+          </li>  
             <li class="nav-item">
               <a class="nav-link active" aria-current="page" href="{% url 'login' %}">Login</a>
-            </li> 
+            </li>
           {% endif %}
           <li class="nav-item">
             <a class="nav-link active" aria-current="page" href="{% url 'products' %}">Product</a>

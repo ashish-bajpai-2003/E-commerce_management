@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<div class="text-center fs-2">
+    About <b class="txt-mycolor">Us<i class="fa-solid fa-address-card"></i></b>
+</div>
+<div class="row">
+    <div class="col-sm-12 mx-auto">
+        <img src="{% static 'images/about1.webp' %}" style="max-height:400px;width:100%;"/>
+        <center><h1 style="text-mycolor";>Grocery Shop : Your New Go-To-Online Grocery Store</h1></center>
+        <p>10minZepto is India’s largest online food and grocery store. With over 18,000 products and over a 1000 brands in our catalogue you will find everything you are looking for. Right from fresh Fruits and Vegetables, Rice and Dals, Spices and Seasonings to Packaged products, Beverages, Personal care products, Meats – we have it all.
+Choose from a wide range of options in every category, exclusively handpicked to help you find the best quality available at the lowest prices. Select a time slot for delivery and your order will be delivered right to your doorstep, anywhere in Bangalore, Hyderabad, Mumbai, Pune, Chennai, Delhi, Noida, Mysore, Coimbatore, Vijayawada-Guntur, Kolkata, Ahmedabad-Gandhinagar, Lucknow-Kanpur, Gurgaon, Vadodara, Visakhapatnam, Surat, Nagpur, Patna, Indore and Chandigarh Tricity You can pay online using your debit / credit card or by cash / sodexo on delivery.
+We guarantee on time delivery, and the best quality!</p>
+
+    </div>
+</div>
+<div class="row mt-4 bg-light">
+    <h2 style="text-align:center;">Why We Should Use Grocery Shop?</h2>
+    <div class="col-sm-3 mt-3 mb-3">
+<div class="card" style="width: 18rem;">
+  <img src="{% static 'images/d1.jpg' %}" class="card-img-top mt-5" alt="...">
+  <div class="card-body">
+    <p class="card-text mt-3 mb-3">#1 instant delivery service in India</p>
+  </div>
+</div>
+    </div>
+    <div class="col-sm-3 mt-3 mb-3">
+        <div class="card" style="width: 18rem;">
+  <img src="{% static 'images/b3.jpg' %}" class="card-img-top" alt="...">
+  <div class="card-body">
+    <p class="card-text mb-1">
+         100% Payment Security
+    </p>
+  </div>
+</div>
+    </div>
+    <div class="col-sm-3 mt-3 mb-3">
+        <div class="card" style="width: 18rem;">
+  <img src="{% static 'images/b1.jpg' %}" class="card-img-top" alt="...">
+  <div class="card-body">
+    <p class="card-text mb-2">Single app for all your daily needs</p>
+  </div>
+</div>
+    </div>
+    <div class="col-sm-3 mt-3 mb-2">
+        <div class="card" style="width: 18rem;">
+  <img src="{% static 'images/d4.jpg' %}" class="card-img-top mt-2" alt="...">
+
+  <div class="card-body">
+    <p class="card-text mb-3 mt-3">Directly Access From PlayStore</p>
+  </div>
+</div>
+</div>
+    </div>
+    <br/>
+    <center><h1 class="mt-5" style="color:var(--txtmycolor);font-family:algerian;">Happy Shopping🙂</h1></center>
+
+
+{% endblock %}

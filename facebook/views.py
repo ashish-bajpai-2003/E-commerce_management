@@ -14,35 +14,13 @@ def home(request):
     md={"cdata":data}
     return render(request, 'home.html',md)
 
+def about(request):
+    return render(request,'aboutus.html')
+
 def generate_otp():
     return str(random.randint(100000, 999999))
 
-def register_customer(request):
-    if request.method == "POST":
-        username = request.POST['username']
-        email = request.POST['email']
-        password = request.POST['password']
 
-        user = CustomUser.objects.create_user(
-            username=username,
-            email=email,
-            password=password,
-            user_type='customer',
-            is_verified=True  
-        )
-        otp = generate_otp()
-        UserOTP.objects.create(user=user, otp=otp)
-        send_mail(
-                subject='Your OTP for Account Verification',
-                message=f'Your OTP is {otp}',
-                from_email='your_email@gmail.com',
-                recipient_list=[user.email],
-            )
-        request.session['username'] = user.username  
-        messages.success(request, "OTP sent to your email.")
-        return redirect('verify_otp')
-        # return redirect('login')
-    return render(request, 'register_customer.html')
 
 def verify_otp(request):
     username = request.session.get('username')
@@ -57,50 +35,89 @@ def verify_otp(request):
             user = CustomUser.objects.filter(username=username).first()
             if user:
                 real_otp = UserOTP.objects.filter(user=user).first()
-                if real_otp and entered_otp == real_otp.otp:
-                    user.is_active = True
-                    user.save()
-                    real_otp.delete()
-                    messages.success(request, "OTP verified! You can now login.")
-                    return redirect('login')
-                else:
-                    messages.error(request, "Invalid OTP. Please try again.")
+                if real_otp:
+                    if real_otp.is_expired:
+                        messages.error(request, "OTP has expired. Please request a new one.")
+                    elif entered_otp == real_otp.otp:
+                        user.is_active = True
+                        user.save()
+                        real_otp.delete()
+                        messages.success(request, "Otp Verified.")
+ 
+                        return redirect('login')
+                    else:
+                        messages.error(request, "Invalid OTP. Please try again.")
+    
+    if request.method == "GET" and 'resend_otp' in request.GET:
+        user = CustomUser.objects.filter(username=username).first()
+        if user:
+            otp = generate_otp()
+            UserOTP.objects.update_or_create(user=user, defaults={'otp': otp})
+            send_mail(
+                "Your OTP Code",
+                f"Your OTP code is {otp}",
+                'from@example.com', 
+                [user.email],
+                fail_silently=False,
+            )
+            messages.success(request, "A new OTP has been sent to your email.")
+        return redirect('verify_otp')  
 
     return render(request, 'verify_otp.html', {'form': form})
+# 
 
-def register_seller(request):
+def register_user(request):
     if request.method == "POST":
         username = request.POST['username']
         email = request.POST['email']
         password = request.POST['password']
+        role = request.POST['role']
 
-        user = CustomUser.objects.create_user(
-            username=username,
-            email=email,
-            password=password,
-            user_type='seller',
-            is_verified=False
-        )
-        messages.success(request,"Seller registered successfully. Please wait for admin verification.")
-    return render(request, 'register_seller.html')
+        if role == 'customer':
+            user = CustomUser.objects.create_user(
+                username=username,
+                email=email,
+                password=password,
+                user_type='customer',
+                is_verified=True  
+            )
+            otp = generate_otp()
+            UserOTP.objects.create(user=user, otp=otp)
+            send_mail(
+                subject='Your OTP for Account Verification',
+                message=f'Your OTP is {otp}',
+                from_email='your_email@gmail.com',
+                recipient_list=[user.email],
+            )
+            request.session['username'] = user.username
+            messages.success(request, "OTP sent to your email.")
+            return redirect('verify_otp')
 
+        elif role == 'seller':
+            user = CustomUser.objects.create_user(
+                username=username,
+                email=email,
+                password=password,
+                user_type='seller',
+                is_verified=False 
+            )
+            return HttpResponse("Seller registered successfully. Please wait for admin verification.")
 
-def register_admin(request):
-    if request.method == "POST":
-        username = request.POST['username']
-        email = request.POST['email']
-        password = request.POST['password']
+        elif role == 'admin':
+            user = CustomUser.objects.create_superuser(
+                username=username,
+                email=email,
+                password=password,
+                user_type='admin',
+                is_verified=True
+            )
+            return redirect('login')
 
-        user = CustomUser.objects.create_superuser(
-            username=username,
-            email=email,
-            password=password,
-            user_type='admin',
-            is_verified=True  
-        )
-        return redirect('login')
-    return render(request, 'register_admin.html')
+        else:
+            messages.error(request, "Invalid role selected.")
+            return redirect('register_user')
 
+    return render(request, 'register_user.html')
 
 
 def user_login(request):
@@ -110,39 +127,61 @@ def user_login(request):
         if form.is_valid():
             username = request.POST.get('username')
             password = request.POST.get('password')
+            role = request.POST.get('role')  
 
             user = authenticate(request, username=username, password=password)
 
             if user is not None:
-                if user.user_type == 'seller':
+                if user.user_type != role:
+                    return render(request, 'login.html', {
+                        'form': form,
+                        'error': 'Invalid role selected for this account.'
+                    })
+
+                if role == 'seller':
                     if not user.is_verified:
-                        messages.success(request,"Seller account not verified by admin yet.")
+                        return HttpResponse("Seller account not verified by admin yet.")
                     else:
                         login(request, user)
-                        return redirect('dashboard')
-                elif user.user_type in ['admin', 'customer']:
+                        return redirect('seller_dashboard')
+                elif role == 'customer':
                     login(request, user)
-                    return redirect('dashboard')
+                    return redirect('customer_dashboard')
+                elif role == 'admin':
+                    login(request, user)
+                    return redirect('admin_dashboard')
+                else:
+                    return render(request, 'login.html', {
+                        'form': form,
+                        'error': 'Invalid role.'
+                    })
             else:
-                return render(request, 'login.html', {'form': form, 'error': 'Invalid credentials'})
+                return render(request, 'login.html', {
+                    'form': form,
+                    'error': 'Invalid username or password.'
+                })
         else:
-            return render(request, 'login.html', {'form': form, 'error': 'Invalid captcha'})
+            return render(request, 'login.html', {
+                'form': form,
+                'error': 'Invalid form submission.'
+            })
+
     return render(request, 'login.html', {'form': form})
 
 
 @login_required
-def dashboard(request):
-    user = request.user
-    if user.user_type == 'admin':
-        sellers = CustomUser.objects.filter(user_type='seller')
-        return render(request, 'admin_dashboard.html', {'sellers':sellers})
-    elif user.user_type == 'seller':
-        return render(request, 'seller_dashboard.html')
-    elif user.user_type == 'customer':
-        return render(request, 'customer_dashboard.html')
-    else:
-        return HttpResponse("Unknown user type.")
+def seller_dashboard(request):
+    return render(request, 'seller_dashboard.html')
 
+@login_required
+def customer_dashboard(request):
+    return render(request, 'customer_dashboard.html')
+
+@login_required
+def admin_dashboard(request):
+    sellers = CustomUser.objects.filter(user_type='seller')
+    customers = CustomUser.objects.filter(user_type='customer')
+    return render(request, 'admin_dashboard.html',{'sellers': sellers,'customers': customers})
 
 @login_required
 def approve_seller(request, seller_id):
@@ -152,19 +191,41 @@ def approve_seller(request, seller_id):
     seller = get_object_or_404(CustomUser, id=seller_id, user_type='seller')
     seller.is_verified = True
     seller.save()
-    send_seller_status_email.delay(seller.email,'approved')
-    return redirect('dashboard')
+    send_seller_status_email.delay(seller.email, 'approved')
+    return redirect('admin_dashboard') 
 
 @login_required
 def unapprove_seller(request, seller_id):
     if request.user.user_type != 'admin':
         return HttpResponse("Unauthorized access.")
-
+    
     seller = get_object_or_404(CustomUser, id=seller_id, user_type='seller')
     seller.is_verified = False
     seller.save()
-    send_seller_status_email.delay(seller.email,'Unapproved')
-    return redirect('dashboard')
+    send_seller_status_email.delay(seller.email, 'unapproved')
+    return redirect('admin_dashboard') 
+
+@login_required
+def delete_seller(request, seller_id):
+    if request.user.user_type != 'admin':
+        return HttpResponse("Unauthorized access.")
+    
+    seller = get_object_or_404(CustomUser, id=seller_id, user_type='seller')
+    seller.delete()
+    return redirect('admin_dashboard') 
+
+@login_required
+def delete_customer(request, customer_id):
+    if request.user.user_type != 'admin':
+        return HttpResponse("Unauthorized access.")
+
+    customer = get_object_or_404(CustomUser, id=customer_id, user_type='customer')
+    customer.delete()
+    return redirect('admin_dashboard')
+
+
+
+
 
 
 
@@ -187,3 +248,8 @@ def product(request):
         pdata=myproduct.objects.all().order_by('-id')
     md={"subcat":sdata,"pdata":pdata}
     return render(request,'product.html',md)
+
+
+def mycartu(request):
+    user=request.objects.get('user')
+    return render(request,'mycart.html',{'user':user})

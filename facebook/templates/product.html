@@ -30,8 +30,8 @@
                     <br/><s><i class="fa-solid fa-indian-rupee-sign"></i>{{x.price}}</s>
                     <b><i class="fa-solid fa-indian-rupee-sign"></i>
                         {{x.discount_price}}</b>
-                    <form method="get" action="/mycart/">
-                <div class="input-group">
+                    <form method="get" action="mycart/">
+                    <div class="input-group">
                     <b class="input-group-text" onclick="funm{{x.id}}()">
                         <i class="fa-solid fa-minus"></i>
                     </b>
@@ -44,7 +44,7 @@
                         <i class="fa-solid fa-plus"></i>
                     </b>
                 </div>
-                    <input type="submit" class="btn bg-mycolor text-light mt-1" value="Add"/>
+                    <a href="{% url 'login' %}"><input type="submit" class="btn bg-mycolor text-light mt-1" value="Add"/></a>
                 </form>
                 </div>
 
@@ -72,4 +72,6 @@
 </div>
     </div>
 </div>
+
+
 {% endblock content %}

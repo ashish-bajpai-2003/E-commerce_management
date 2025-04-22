@@ -12,7 +12,7 @@
             <div class="col-12 col-md-5 col-lg-7 col-xl-6">
                 <div class="card" style="border-radius: 10px; height: 450px; overflow: hidden;">
                     <div class="card-body p-5">
-              <h2 class="text-uppercase text-center mb-5"><u>LOGIN</u></h2>
+              <h2 class="text-uppercase text-center mb-3"><u>LOGIN</u></h2>
             <form action="" method="post">
               {% csrf_token %}
                 <div data-mdb-input-init class="form-outline mb-4">
@@ -21,6 +21,14 @@
                 <div data-mdb-input-init class="form-outline mb-4">
                   <input type="password" id="password" name="password" class="form-control form-control-lg" placeholder="Password"/>
                 </div>
+                <div class="form-outline mb-4">
+                  <select name="role" class="form-select form-control form-control-lg" required>
+                      <option value="">Select Role</option>
+                      <option value="customer">Customer</option>
+                      <option value="seller">Seller</option>
+                      <option value="admin">Admin</option>
+                  </select>
+              </div>
                 <div style="background-color: #f0f9ff; padding: 10px; display: inline-block; border-radius: 10px;">
                 {% comment %} <div class="form-outline mb-4"> {% endcomment %}
                   {{ form.captcha }}

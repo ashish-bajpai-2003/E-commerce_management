@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
-
-
+from django.utils import timezone
+from datetime import timedelta
 class CustomUser(AbstractUser):
     USER_ROLES = (
         ('admin', 'Admin'),
@@ -20,6 +20,9 @@ class UserOTP(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.otp}"
+    @property
+    def is_expired(self):
+        return timezone.now() > self.created_at + timezone.timedelta(minutes=2)
     
 
 class Category(models.Model):

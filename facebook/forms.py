@@ -10,3 +10,12 @@ class OTPForm(forms.Form):
     
 class Myform(forms.Form):
     captcha=CaptchaField()
+
+
+from django import forms
+from .models import myproduct
+
+class ProductForm(forms.ModelForm):
+    class Meta:
+        model = myproduct
+        fields = ['veg_name', 'price', 'product_quantity', 'product_pic']

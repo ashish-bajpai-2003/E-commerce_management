@@ -7,9 +7,10 @@
     <p {% if message.tags %} class="alert alert-{{message.tags}} mb-5" {% endif %}>{{message}}</p>
     {% endfor %}
 {% endif %}
-    {% csrf_token %}
+{% csrf_token %}
     <label>Enter OTP sent to your email:</label>
     <input type="text" name="otp" required>
     <button type="submit">Verify</button>
 </form>
+
 {% endblock content %}

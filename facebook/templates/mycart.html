@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+{% if not request.user.is_authenticated %}
+<script>
+    alert("You have to log in first to add a product!");
+    window.location.href = "/login/";
+</script>
+{% endif %}
+{% endblock %}
