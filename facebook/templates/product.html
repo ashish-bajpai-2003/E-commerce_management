@@ -21,8 +21,9 @@
   {% for x in pdata %}
         <div class="col-lg-3 col-md-6 col-sm-12">
             <!-- start product -->
-            <div class="card mt-2">
-                <img src="/{{x.product_pic}}" class="card-img-top"/>
+            <div class="card mt-2" style="height: 350px;">
+                <img src="/{{x.product_pic}}" class="card-img-top" style="height: 200px; object-fit: cover;"/>
+            
                 <div class="card-body">
 <!--               <b>{{x.subcategory_name}}</b><br/>-->
                     <b>{{x.veg_name}}</b><br/>
@@ -44,8 +45,11 @@
                         <i class="fa-solid fa-plus"></i>
                     </b>
                 </div>
-                    <a href="{% url 'login' %}"><input type="submit" class="btn bg-mycolor text-light mt-1" value="Add"/></a>
+                <form method="get" action="{% url 'login' %}">
+                    <input type="submit" class="btn bg-mycolor text-light mt-1 w-100" value="Add"/>
                 </form>
+                
+               
                 </div>
 
             </div>
