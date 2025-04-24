@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<h2 class="text-center">My Cart</h2>
+
+<div class="container mt-4">
+    {% if cart %}
+        <div class="row">
+            {% for item in cart %}
+                <div class="col-md-4">
+                    <div class="card mb-3">
+                        <img src="/{{ item.ppic }}" class="card-img-top" style="height:200px; object-fit:cover;">
+                        <div class="card-body">
+                            <h5>{{ item.pname }}</h5>
+                            <p>{{ item.pw }}</p>
+                            <p>Price: ₹<s>{{ item.price }}</s> <b>₹{{ item.discount_price }}</b></p>
+                            <p>Quantity: {{ item.qt }}</p>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p>Your cart is empty.</p>
+    {% endif %}
+</div>
+
+{% endblock %}

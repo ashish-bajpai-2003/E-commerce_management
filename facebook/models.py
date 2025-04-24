@@ -2,6 +2,9 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.utils import timezone
 from datetime import timedelta
+from django.contrib.auth.models import User
+from django.conf import settings
+
 class CustomUser(AbstractUser):
     USER_ROLES = (
         ('admin', 'Admin'),
@@ -41,12 +44,25 @@ class subcategory(models.Model):
     
 
 class myproduct(models.Model):
-    product_category=models.ForeignKey(Category,on_delete=models.CASCADE)
-    subcategory_name=models.ForeignKey(subcategory,on_delete=models.CASCADE)
-    veg_name=models.CharField(max_length=200,null=True)
+    seller = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    product_category=models.ForeignKey(Category,on_delete=models.CASCADE,null=True,blank=True)
+    subcategory_name=models.ForeignKey(subcategory,on_delete=models.CASCADE,null=True,blank=True)
+    product_name=models.CharField(max_length=200,null=True)
     price=models.IntegerField()
-    discount_price=models.IntegerField()
+    discount_price=models.IntegerField(null=True, blank=True)
     product_pic=models.ImageField(upload_to='static/product/',null=True)
-    total_discount=models.IntegerField()
+    total_discount=models.IntegerField(null=True, blank=True)
     product_quantity=models.CharField(max_length=200)
-    pdate=models.DateField()
+    pdate=models.DateField(default=timezone.now)
+
+
+class Product(models.Model):
+    seller = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    name = models.CharField(max_length=100)
+    description = models.TextField()
+    price = models.DecimalField(max_digits=10, decimal_places=2)
+    image = models.ImageField(upload_to='products/', blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.name

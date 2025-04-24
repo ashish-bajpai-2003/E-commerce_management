@@ -253,3 +253,111 @@ def product(request):
 def mycartu(request):
     user=request.objects.get('user')
     return render(request,'mycart.html',{'user':user})
+
+
+
+
+
+
+
+from django.shortcuts import render, redirect, get_object_or_404
+from .models import Product, myproduct
+from .forms import ProductForm
+
+def seller_dashboard(request):
+    if not request.user.is_authenticated:
+        return redirect('login')
+
+    seller = request.user
+    if request.method == 'POST':
+        form = ProductForm(request.POST, request.FILES)
+        if form.is_valid():
+            product = form.save(commit=False)
+            product.seller = seller
+            product.save()
+            return redirect('seller_dashboard')
+    else:
+        form = ProductForm()
+
+    products = myproduct.objects.filter(seller=seller)
+    return render(request, 'seller_dashboard.html', {'form': form, 'products': products})
+
+def product_update(request, pk):
+    if not request.user.is_authenticated:
+        return redirect('login')
+
+    seller = request.user
+    product = get_object_or_404(myproduct, pk=pk, seller=seller)
+    if request.method == 'POST':
+        form = ProductForm(request.POST, request.FILES, instance=product)
+        if form.is_valid():
+            form.save()
+            return redirect('seller_dashboard')
+    else:
+        form = ProductForm(instance=product)
+
+    products = myproduct.objects.filter(seller=seller)
+    return render(request, 'seller_dashboard.html', {'form': form, 'products': products})
+
+def product_delete(request, pk):
+    if not request.user.is_authenticated:
+        return redirect('login')
+
+    seller = request.user
+    product = get_object_or_404(myproduct, pk=pk, seller=seller)
+    product.delete()
+    return redirect('seller_dashboard')
+
+
+def mycart(request):
+    if request.method == "GET":
+        pname = request.GET.get("pname")
+        price = request.GET.get("price")
+        discount_price = request.GET.get("discount_price")
+        ppic = request.GET.get("ppic")
+        pw = request.GET.get("pw")
+        qt = request.GET.get("qt")
+        cart = request.session.get('cart', [])
+        if int(qt) > 0:
+            item = {
+                'pname': pname,
+                'price': price,
+                'discount_price': discount_price,
+                'ppic': ppic,
+                'pw': pw,
+                'qt': qt,
+            }
+            cart.append(item)
+            request.session['cart'] = cart
+            request.session.modified = True
+
+        return redirect('showcart')
+    
+
+
+
+def showcart(request):
+    cart = request.session.get('cart', [])
+    return render(request, 'cart.html', {'cart': cart})
+
+
+
+
+
+def product_add(request):
+    if not request.user.is_authenticated:
+        return redirect('login') 
+
+    if request.method == 'POST':
+        form = ProductForm(request.POST, request.FILES)
+        if form.is_valid():
+            product = form.save(commit=False)
+            product.seller = request.user 
+            product.save()
+            return redirect('seller_dashboard')
+    else:
+        form = ProductForm()
+
+    return render(request, 'product_add.html', {'form': form})
+
+

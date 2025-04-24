@@ -1,81 +1,82 @@
-{% extends 'base.html'%}
+{% extends 'base.html' %}
 {% load static %}
 {% block content %}
+
 <div class="text-center fs-2">
-    Our <b class="txt-mycolor">Product<i class="fa-brands fa-product-hunt"></i>
-</b>
+    Our <b class="txt-mycolor">Product <i class="fa-brands fa-product-hunt"></i></b>
 </div>
+
 <div class="row">
     <div class="col-sm-3">
-    <ul class="list-group">
-  <li class="list-group-item bg-mycolor text-light fs-3" style="font-family:FZShuTi;" aria-current="true">
-      Sub Category</li>
- {% for i in subcat %}
- <a href="/product?sid={{i.id}}" style="text-decoration:none;font-family:STXinwei;"> <li class="list-group-item fs-3">{{i.subcategory_name}}</li></a>
-
-        {% endfor %}
-</ul>
+        <ul class="list-group">
+            <li class="list-group-item bg-mycolor text-light fs-3" style="font-family:FZShuTi;" aria-current="true">
+                Sub Category</li>
+            {% for i in subcat %}
+            <a href="/product?sid={{i.id}}" style="text-decoration:none;font-family:STXinwei;">
+                <li class="list-group-item fs-3">{{i.subcategory_name}}</li>
+            </a>
+            {% endfor %}
+        </ul>
     </div>
-<div class="col-sm-9">
-<div class="row">
-  {% for x in pdata %}
-        <div class="col-lg-3 col-md-6 col-sm-12">
-            <!-- start product -->
-            <div class="card mt-2" style="height: 350px;">
-                <img src="/{{x.product_pic}}" class="card-img-top" style="height: 200px; object-fit: cover;"/>
-            
-                <div class="card-body">
-<!--               <b>{{x.subcategory_name}}</b><br/>-->
-                    <b>{{x.veg_name}}</b><br/>
-                    {{x.product_quantity}}
-                    <br/><s><i class="fa-solid fa-indian-rupee-sign"></i>{{x.price}}</s>
-                    <b><i class="fa-solid fa-indian-rupee-sign"></i>
-                        {{x.discount_price}}</b>
-                    <form method="get" action="mycart/">
-                    <div class="input-group">
-                    <b class="input-group-text" onclick="funm{{x.id}}()">
-                        <i class="fa-solid fa-minus"></i>
-                    </b>
-                    <input type="hidden" value="{{x.veg_name}}" name="pname"/>
-                    <input type="hidden" value="{{x.price}}" name="price"/>
-                    <input type="hidden" value="{{x.product_pic}}" name="ppic"/>
-                    <input type="hidden" value="{{x.product_quantity}}" name="pw"/>
-                    <input type="text" name="qt" value="0" id="txtcard{{x.id}}" readonly class="form-control fs-5 text-center"/>
-                    <b class="input-group-text"  onclick="funp{{x.id}}()">
-                        <i class="fa-solid fa-plus"></i>
-                    </b>
-                </div>
-                <form method="get" action="{% url 'login' %}">
-                    <input type="submit" class="btn bg-mycolor text-light mt-1 w-100" value="Add"/>
-                </form>
-                
-               
-                </div>
 
+    <div class="col-sm-9">
+        <div class="row">
+            {% for x in pdata %}
+            <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+                <div class="card h-100">
+                    <img src="/{{x.product_pic}}" class="card-img-top" style="height: 200px; object-fit: cover;" />
+                    <div class="card-body">
+                        <b>{{x.veg_name}}</b><br/>
+                        {{x.product_quantity}}<br/>
+                        <s><i class="fa-solid fa-indian-rupee-sign"></i>{{x.price}}</s>
+                        <b><i class="fa-solid fa-indian-rupee-sign"></i>{{x.discount_price}}</b>
+
+                        <div class="input-group my-2">
+                            <span class="input-group-text" onclick="funm{{x.id}}()">
+                                <i class="fa-solid fa-minus"></i>
+                            </span>
+                            <input type="text" value="0" id="txtcard{{x.id}}" readonly class="form-control text-center">
+                            <span class="input-group-text" onclick="funp{{x.id}}()">
+                                <i class="fa-solid fa-plus"></i>
+                            </span>
+                        </div>
+
+                        <form method="get" action="{% url 'mycart' %}">
+                            <input type="hidden" name="pname" value="{{x.veg_name}}">
+                            <input type="hidden" name="price" value="{{x.price}}">
+                            <input type="hidden" name="discount_price" value="{{x.discount_price}}">
+                            <input type="hidden" name="ppic" value="{{x.product_pic}}">
+                            <input type="hidden" name="pw" value="{{x.product_quantity}}">
+                            <input type="hidden" name="qt" id="hiddenqt{{x.id}}" value="0">
+                            <input type="submit" class="btn bg-mycolor text-light w-100" value="Add" onclick="updateHiddenQt{{x.id}}()">
+                        </form>
+                    </div>
+                </div>
             </div>
-            <!-- end product -->
-        </div>
-                <script>
-                var i{{x.id}}=0;
-                  var txtc{{x.id}}=document.getElementById("txtcard{{x.id}}");
-                  function funp{{x.id}}()
-                  {
-                  i{{x.id}}++;
-                  txtc{{x.id}}.value=i{{x.id}};
-                  }
-                  function funm{{x.id}}()
-                  {
-                  if(i{{x.id}}>0)
-                  {
-                  i{{x.id}}--;
-                  txtc{{x.id}}.value=i{{x.id}};
-                  }
-                  }
+
+            <script>
+                var i{{x.id}} = 0;
+                var txtc{{x.id}} = document.getElementById("txtcard{{x.id}}");
+
+                function funp{{x.id}}() {
+                    i{{x.id}}++;
+                    txtc{{x.id}}.value = i{{x.id}};
+                }
+
+                function funm{{x.id}}() {
+                    if (i{{x.id}} > 0) {
+                        i{{x.id}}--;
+                        txtc{{x.id}}.value = i{{x.id}};
+                    }
+                }
+
+                function updateHiddenQt{{x.id}}() {
+                    document.getElementById("hiddenqt{{x.id}}").value = txtc{{x.id}}.value;
+                }
             </script>
-        {% endfor %}
-</div>
+            {% endfor %}
+        </div>
     </div>
 </div>
-
 
 {% endblock content %}

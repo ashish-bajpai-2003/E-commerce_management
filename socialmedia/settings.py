@@ -130,7 +130,7 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER ='bajpaiashish2003@gmail.com'
-EMAIL_HOST_PASSWORD = 'ljff rhgg fjvy heco'
+EMAIL_HOST_PASSWORD = 'ljffrhggfjvyheco'
 DEFAULT_FROM_EMAIL = 'bajpaiashish2003@gmail.com'
 CAPTCHA_IMAGE_SIZE = (150, 50)
 CAPTCHA_FONT_SIZE = 36
@@ -146,3 +146,5 @@ CAPTCHA_NOISE_FUNCTIONS = (
 
 
 CAPTCHA_CHALLENGE_FUNCT = 'captcha.helpers.random_char_challenge'
+
+     

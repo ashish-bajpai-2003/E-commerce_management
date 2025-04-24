@@ -1,6 +1,41 @@
 {% extends 'base.html' %}
 {% load static %}
+
 {% block content %}
-<div class="col-sm-5" style="margin-top:50px;">
-<h2>Welcome Seller :{{ request.user.username }}</h2>
+<div class="container mt-4">
+    <h2 class="text-center mb-4">Welcome Seller: {{ request.user.username }}</h2>
+    <div class="text-end mb-3">
+        <a href="{% url 'product_add' %}" class="btn btn-primary">+ Add New Product</a>
+    </div>
+
+    {% if products %}
+        <div class="row">
+            {% for product in products %}
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100 shadow">
+                        {% if product.product_pic %}
+                            <img src="{{ product.product_pic.url }}" class="card-img-top" style="height: 200px; object-fit: cover;">
+                        {% else %}
+                            <img src="{% static 'images/no_image_available.png' %}" class="card-img-top" style="height: 200px; object-fit: cover;">
+                        {% endif %}
+                        <div class="card-body">
+                            <h5 class="card-title">{{ product.product_name }}</h5>
+                            <p class="card-text">
+                                <strong>Price:</strong> ₹{{ product.price }} <br>
+                                <strong>Discount Price:</strong> ₹{{ product.discount_price }} <br>
+                                <strong>Quantity:</strong> {{ product.product_quantity }}
+                            </p>
+                        </div>
+                        <div class="card-footer d-flex justify-content-between">
+                            <a href="{% url 'product_update' product.pk %}" class="btn btn-sm btn-warning">Edit</a>
+                            <a href="{% url 'product_delete' product.pk %}" class="btn btn-sm btn-danger">Delete</a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="text-center">No products added yet.</p>
+    {% endif %}
+</div>
 {% endblock content %}
