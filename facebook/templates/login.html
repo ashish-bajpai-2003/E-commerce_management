@@ -16,7 +16,8 @@
             <form action="" method="post">
               {% csrf_token %}
                 <div data-mdb-input-init class="form-outline mb-4">
-                  <input type="text" id="username" name="username" class="form-control form-control-lg" placeholder="Username"/>
+                  <input type="text" name="username" id="username" class="form-control form-control-lg" placeholder="Username"/>
+
                 </div>
                 <div data-mdb-input-init class="form-outline mb-4">
                   <input type="password" id="password" name="password" class="form-control form-control-lg" placeholder="Password"/>
@@ -30,7 +31,7 @@
                   </select>
               </div>
                 <div style="background-color: #f0f9ff; padding: 10px; display: inline-block; border-radius: 10px;">
-                {% comment %} <div class="form-outline mb-4"> {% endcomment %}
+            
                   {{ form.captcha }}
                 </div><br>
               <!-- Error Message -->

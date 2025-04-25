@@ -22,3 +22,17 @@ class ProductForm(forms.ModelForm):
 
 
 
+from captcha.fields import CaptchaField
+
+class Myform(forms.Form):
+    username = forms.CharField(max_length=100)
+    password = forms.CharField(widget=forms.PasswordInput)
+    role = forms.ChoiceField(choices=[
+        ('customer', 'Customer'),
+        ('seller', 'Seller'),
+        ('admin', 'Admin'),
+    ])
+    captcha = CaptchaField()
+
+
+

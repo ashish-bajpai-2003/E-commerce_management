@@ -6,8 +6,9 @@ import random
 from django.core.mail import send_mail
 from django.contrib.auth.decorators import login_required
 from .models import CustomUser,UserOTP
+from django.db.models import Q
 from .forms import Myform ,OTPForm
-from .models import subcategory,myproduct,Category
+from .models import subcategory,myproduct,Category, cart
 from.task import send_seller_status_email
 def home(request):
     data=Category.objects.all().order_by('-id')
@@ -123,48 +124,38 @@ def register_user(request):
 def user_login(request):
     form = Myform(request.POST or None)
 
-    if request.method == "POST":
-        if form.is_valid():
-            username = request.POST.get('username')
-            password = request.POST.get('password')
-            role = request.POST.get('role')  
+    if request.method == "POST" and form.is_valid():
+        uname = form.cleaned_data['username']
+        pwd   = form.cleaned_data['password']
+        role  = form.cleaned_data['role']
 
-            user = authenticate(request, username=username, password=password)
+        qs = CustomUser.objects.filter(username=uname, user_type=role)
 
-            if user is not None:
-                if user.user_type != role:
-                    return render(request, 'login.html', {
-                        'form': form,
-                        'error': 'Invalid role selected for this account.'
-                    })
+        if not qs.exists():
+            messages.error(request, "Invalid username or role.")
+            return render(request, 'login.html', {'form': form})
 
-                if role == 'seller':
-                    if not user.is_verified:
-                        return HttpResponse("Seller account not verified by admin yet.")
-                    else:
-                        login(request, user)
-                        return redirect('seller_dashboard')
-                elif role == 'customer':
-                    login(request, user)
-                    return redirect('customer_dashboard')
-                elif role == 'admin':
-                    login(request, user)
-                    return redirect('admin_dashboard')
-                else:
-                    return render(request, 'login.html', {
-                        'form': form,
-                        'error': 'Invalid role.'
-                    })
-            else:
-                return render(request, 'login.html', {
-                    'form': form,
-                    'error': 'Invalid username or password.'
-                })
+        user = None
+        for u in qs:
+            if u.check_password(pwd):
+                user = u
+                break
+
+        if not user:
+            messages.error(request, "Incorrect password.")
+            return render(request, 'login.html', {'form': form})
+
+        if role == 'seller' and not user.is_verified:
+            messages.error(request, "Seller account not verified yet. Please wait.")
+            return render(request, 'login.html', {'form': form})
+
+        login(request, user)
+        if role == 'seller':
+            return redirect('seller_dashboard')
+        elif role == 'customer':
+            return redirect('customer_dashboard')
         else:
-            return render(request, 'login.html', {
-                'form': form,
-                'error': 'Invalid form submission.'
-            })
+            return redirect('admin_dashboard')
 
     return render(request, 'login.html', {'form': form})
 
@@ -286,8 +277,8 @@ def product_update(request, pk):
     if not request.user.is_authenticated:
         return redirect('login')
 
-    seller = request.user
-    product = get_object_or_404(myproduct, pk=pk, seller=seller)
+    product = get_object_or_404(myproduct, pk=pk, seller=request.user)
+
     if request.method == 'POST':
         form = ProductForm(request.POST, request.FILES, instance=product)
         if form.is_valid():
@@ -296,43 +287,47 @@ def product_update(request, pk):
     else:
         form = ProductForm(instance=product)
 
-    products = myproduct.objects.filter(seller=seller)
-    return render(request, 'seller_dashboard.html', {'form': form, 'products': products})
+    return render(request, 'product_add.html', {'form': form})
 
 def product_delete(request, pk):
     if not request.user.is_authenticated:
         return redirect('login')
 
-    seller = request.user
-    product = get_object_or_404(myproduct, pk=pk, seller=seller)
+    product = get_object_or_404(myproduct, pk=pk, seller=request.user)
     product.delete()
     return redirect('seller_dashboard')
 
 
 def mycart(request):
     if request.method == "GET":
+        cname = request.GET.get("cname")
         pname = request.GET.get("pname")
         price = request.GET.get("price")
         discount_price = request.GET.get("discount_price")
         ppic = request.GET.get("ppic")
         pw = request.GET.get("pw")
         qt = request.GET.get("qt")
+
+        
+        if qt and qt.isdigit() and int(qt) > 0:
+            qt = int(qt)  
+        else:
+            qt = 1  
+
         cart = request.session.get('cart', [])
-        if int(qt) > 0:
-            item = {
-                'pname': pname,
-                'price': price,
-                'discount_price': discount_price,
-                'ppic': ppic,
-                'pw': pw,
-                'qt': qt,
-            }
-            cart.append(item)
-            request.session['cart'] = cart
-            request.session.modified = True
+        item = {
+            'pname': pname,
+            'price': price,
+            'discount_price': discount_price,
+            'ppic': ppic,
+            'pw': pw,
+            'qt': qt,
+        }
+        cart.append(item)
+        request.session['cart'] = cart
+        request.session.modified = True
 
         return redirect('showcart')
-    
 
 
 
@@ -361,3 +356,34 @@ def product_add(request):
     return render(request, 'product_add.html', {'form': form})
 
 
+
+def product_search(request):
+    query = request.GET.get('q','').strip()
+    products = myproduct.objects.none()
+
+    if query:
+        products = myproduct.objects.filter(
+            Q(product_name__icontains=query) |
+            Q(product_category__cname__icontains=query) |
+            Q(subcategory_name__subcategory_name__icontains=query)
+        ).distinct()
+
+    return render(request, 'product_search.html', {
+        'products': products,
+        'query': query
+    })
+
+@login_required
+def myorders(request):
+    # agar order model bana hai, fetch karo, varna session-based orders dikhao
+    orders = Order.objects.filter(user=request.user).order_by('-created_at')
+    return render(request, 'myorders.html', {'orders': orders})
+
+
+
+
+
+@login_required
+def user_cart_products(request):
+    user_cart_items = cart.objects.filter(userid=request.user.username)
+    return render(request, 'user_cart_products.html', {'cart_items': user_cart_items})

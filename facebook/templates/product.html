@@ -42,7 +42,7 @@
                         </div>
 
                         <form method="get" action="{% url 'mycart' %}">
-                            <input type="hidden" name="pname" value="{{x.veg_name}}">
+                            <input type="hidden" name="pname" value="{{x.product_name}}">
                             <input type="hidden" name="price" value="{{x.price}}">
                             <input type="hidden" name="discount_price" value="{{x.discount_price}}">
                             <input type="hidden" name="ppic" value="{{x.product_pic}}">

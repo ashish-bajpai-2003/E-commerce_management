@@ -6,6 +6,7 @@ from django.contrib.auth.models import User
 from django.conf import settings
 
 class CustomUser(AbstractUser):
+    username = models.CharField(max_length=100,unique=True)
     USER_ROLES = (
         ('admin', 'Admin'),
         ('seller', 'Seller'),
@@ -13,6 +14,8 @@ class CustomUser(AbstractUser):
     )
     user_type = models.CharField(max_length=10, choices=USER_ROLES)
     is_verified = models.BooleanField(default=False)  
+
+   
     def __str__(self):
         return f"{self.username} ({self.user_type})"
 
@@ -56,6 +59,12 @@ class myproduct(models.Model):
     pdate=models.DateField(default=timezone.now)
 
 
+    def __str__(self):
+        if self.product_category:
+            return self.product_category.cname
+        return 'No Category Assigned'
+
+
 class Product(models.Model):
     seller = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     name = models.CharField(max_length=100)
@@ -66,3 +75,31 @@ class Product(models.Model):
 
     def __str__(self):
         return self.name
+    
+
+
+
+
+class cart(models.Model):
+    userid=models.CharField(max_length=200,null=True)
+    product_name=models.CharField(max_length=200)
+    quantity=models.IntegerField(null=True)
+    price=models.IntegerField(default=0)
+    total_price=models.FloatField(default=0)
+    product_picture=models.CharField(max_length=300,null=True)
+    pw=models.CharField(max_length=200,null=True)
+    added_date=models.DateField()
+
+class myorder(models.Model):
+    userid = models.CharField(max_length=200, null=True)
+    product_name = models.CharField(max_length=200)
+    quantity = models.IntegerField(null=True)
+    price = models.IntegerField(null=True)
+    total_price = models.FloatField(null=True)
+    product_picture = models.CharField(max_length=300, null=True)
+    pw = models.CharField(max_length=200, null=True)
+    order_date = models.DateField(null=True)
+    status=models.CharField(max_length=200,null=True)
+    
+
+
