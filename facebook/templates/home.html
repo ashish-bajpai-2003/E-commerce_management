@@ -1,45 +1,82 @@
 {% extends 'base.html' %}
 {% load static %}
 {% block content %}
+
 <div class="row slider mt-3">
     <div class="col-sm-5">
         <img src="{% static 'images/navratri.webp' %}" style="height:253px; max-width:700px; border-radius:10px;" id="offer" class="img-fluid w-100"/>
     </div>
-        <div class="col-sm-7 p-1">
-            <!-- start slider -->
-            <div id="carouselExampleIndicators" class="carousel slide carousel-fade" data-bs-ride="carousel">
-  <div class="carousel-indicators">
-    <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
-    <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="1" aria-label="Slide 2"></button>
-    <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="2" aria-label="Slide 3"></button>
-  </div>
-  <div class="carousel-inner">
-    <div class="carousel-item active">
-      <img src="{% static 'images/fruits.jpeg' %}" style="max-height:250px;border-radius:20px;" class="d-block w-100" alt="...">
+    <div class="col-sm-7 p-1">
+        <div id="carouselExampleIndicators" class="carousel slide carousel-fade" data-bs-ride="carousel">
+            <div class="carousel-inner">
+                <div class="carousel-item active">
+                    <img src="{% static 'images/fruits.jpeg' %}" style="max-height:250px;border-radius:20px;" class="d-block w-100" alt="...">
+                </div>
+                <div class="carousel-item">
+                    <img src="{% static 'images/Groceries-scaled.jpg' %}" style="max-height:250px;border-radius:20px;" class="d-block w-100" alt="...">
+                </div>
+                <div class="carousel-item">
+                    <img src="{% static 'images/grocery.png' %}" style="max-height:250px;border-radius:20px;" class="d-block w-100" alt="...">
+                </div>
+            </div>
+        </div>
     </div>
-    <div class="carousel-item active">
-      <img src="{% static 'images/Groceries-scaled.jpg' %}" style="max-height:250px;border-radius:20px;" class="d-block w-100" alt="...">
-    </div>
-    <div class="carousel-item active">
-      <img src="{% static 'images/grocery.png' %}" style="max-height:250px;border-radius:20px;" class="d-block w-100" alt="...">
-    </div>  
-</div>
-</div>
 </div>
 
+<!-- Category Section -->
 
-<div class=" row category mt-3 py-3 ms-3" style="background:#e3e3e3;">
-  <div class="fs-3 heading">Shop By <b class="txt-mycolor">Categories</b></div>
-  {% for x in cdata %}
-<div class="col-lg-2 col-md-4 col-sm-12">
-<div class="card mt-2">
-  <img src="/{{x.cpic}}" style="max-height:150px;"  class="card-img-top"/>
-  <div class="card-body">
-     <a href="/product/?cid={{x.id}}" style="text-decoration:none;" id="cname"><p class="text-center"><b>{{x.cname}}</b></p></a>
+<div class="row category mt-3 py-3 ms-3" style="background:#e3e3e3;">
+  {% if is_seller %}
+    <div class="d-flex justify-content-between align-items-center">
+        <div class="fs-3 heading">Shop By <b class="txt-mycolor">Categories</b></div>
+        
+        <!-- Button to Open Modal to Add Category -->
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addCategoryModal">
+            + Add Category
+        </button>
+    </div>
+  {% endif %}
+
+    {% for x in cdata %}
+        <div class="col-lg-2 col-md-4 col-sm-12">
+            <div class="card mt-2">
+                <img src="/{{ x.cpic }}" style="max-height:150px;" class="card-img-top"/>
+                <div class="card-body">
+                    <a href="/product/?cid={{ x.id }}" style="text-decoration:none;" id="cname">
+                        <p class="text-center"><b>{{ x.cname }}</b></p>
+                    </a>
+                    {% if is_seller %}
+                    <!-- Edit & Delete buttons -->
+                    <div class="d-flex justify-content-center">
+                        <a href="{% url 'category_edit' x.id %}" class="btn btn-sm btn-warning me-1">Edit</a>
+                        <a href="{% url 'category_delete' x.id %}" class="btn btn-sm btn-danger">Delete</a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+
+<!-- Modal for Adding New Category -->
+<div class="modal fade" id="addCategoryModal" tabindex="-1" aria-labelledby="addCategoryModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form method="POST" enctype="multipart/form-data">
+          {% csrf_token %}
+          <div class="modal-header">
+            <h5 class="modal-title" id="addCategoryModalLabel">Add New Category</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+              {{ form.as_p }}
+          </div>
+          <div class="modal-footer">
+              <button type="submit" class="btn btn-success">Save</button>
+          </div>
+      </form>
+    </div>
   </div>
-</div>
-</div>
-  {% endfor %}
 </div>
 
 {% endblock content %}

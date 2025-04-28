@@ -6,51 +6,52 @@
     Our <b class="txt-mycolor">Product <i class="fa-brands fa-product-hunt"></i></b>
 </div>
 
-<div class="row">
+{% comment %} <div class="row">
     <div class="col-sm-3">
         <ul class="list-group">
-            <li class="list-group-item bg-mycolor text-light fs-3" style="font-family:FZShuTi;" aria-current="true">
-                Sub Category</li>
             {% for i in subcat %}
             <a href="/product?sid={{i.id}}" style="text-decoration:none;font-family:STXinwei;">
-                <li class="list-group-item fs-3">{{i.subcategory_name}}</li>
+                <li class="list-group-item fs-3">
+                    <img src="/{{i.subcategory_image.url}}" alt="{{i.subcategory_name}}" style="width: 30px; height: 30px; margin-right: 10px;" />
+                    {{i.subcategory_name}}
+                </li>
             </a>
             {% endfor %}
         </ul>
-    </div>
+    </div> {% endcomment %}
 
     <div class="col-sm-9">
         <div class="row">
             {% for x in pdata %}
             <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
                 <div class="card h-100">
-                    <img src="/{{x.product_pic}}" class="card-img-top" style="height: 200px; object-fit: cover;" />
+                    <img src="/{{ x.product_pic }}" class="card-img-top" style="height: 200px; object-fit: cover;" />
                     <div class="card-body">
                         <b>{{x.veg_name}}</b><br/>
-                        {{x.product_quantity}}<br/>
-                        <s><i class="fa-solid fa-indian-rupee-sign"></i>{{x.price}}</s>
+                        <span class="text-muted">{{x.product_quantity}} </span><br/>
+                        <s class="text-danger"><i class="fa-solid fa-indian-rupee-sign"></i>{{x.price}}</s>
                         <b><i class="fa-solid fa-indian-rupee-sign"></i>{{x.discount_price}}</b>
-
-                        <div class="input-group my-2">
-                            <span class="input-group-text" onclick="funm{{x.id}}()">
-                                <i class="fa-solid fa-minus"></i>
-                            </span>
-                            <input type="text" value="0" id="txtcard{{x.id}}" readonly class="form-control text-center">
-                            <span class="input-group-text" onclick="funp{{x.id}}()">
-                                <i class="fa-solid fa-plus"></i>
-                            </span>
-                        </div>
-
-                        <form method="get" action="{% url 'mycart' %}">
-                            <input type="hidden" name="pname" value="{{x.product_name}}">
-                            <input type="hidden" name="price" value="{{x.price}}">
-                            <input type="hidden" name="discount_price" value="{{x.discount_price}}">
-                            <input type="hidden" name="ppic" value="{{x.product_pic}}">
-                            <input type="hidden" name="pw" value="{{x.product_quantity}}">
-                            <input type="hidden" name="qt" id="hiddenqt{{x.id}}" value="0">
-                            <input type="submit" class="btn bg-mycolor text-light w-100" value="Add" onclick="updateHiddenQt{{x.id}}()">
-                        </form>
                     </div>
+
+                    <div class="input-group my-2">
+                        <span class="input-group-text" onclick="funm{{x.id}}()">
+                            <i class="fa-solid fa-minus"></i>
+                        </span>
+                        <input type="text" value="0" id="txtcard{{x.id}}" readonly class="form-control text-center">
+                        <span class="input-group-text" onclick="funp{{x.id}}()">
+                            <i class="fa-solid fa-plus"></i>
+                        </span>
+                    </div>
+
+                    <form method="get" action="{% url 'mycart' %}">
+                        <input type="hidden" name="pname" value="{{x.product_name}}">
+                        <input type="hidden" name="price" value="{{x.price}}">
+                        <input type="hidden" name="discount_price" value="{{x.discount_price}}">
+                        <input type="hidden" name="ppic" value="{{x.product_pic}}">
+                        <input type="hidden" name="pw" value="{{x.product_quantity}}">
+                        <input type="hidden" name="qt" id="hiddenqt{{x.id}}" value="0">
+                        <input type="submit" class="btn bg-mycolor text-light w-100" value="Add" onclick="updateHiddenQt{{x.id}}()">
+                    </form>
                 </div>
             </div>
 

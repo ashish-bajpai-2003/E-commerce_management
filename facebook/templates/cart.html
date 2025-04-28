@@ -5,21 +5,49 @@
 
 <div class="container mt-4">
     {% if cart %}
-        <div class="row">
-            {% for item in cart %}
-                <div class="col-md-4">
-                    <div class="card mb-3">
-                        <img src="/{{ item.ppic }}" class="card-img-top" style="height:200px; object-fit:cover;">
-                        <div class="card-body">
-                            <h5>{{ item.pname }}</h5>
-                            <p>{{ item.pw }}</p>
-                            <p>Price: ₹<s>{{ item.price }}</s> <b>₹{{ item.discount_price }}</b></p>
-                            <p>Quantity: {{ item.qt }}</p>
-                        </div>
-                    </div>
-                </div>
-            {% endfor %}
-        </div>
+        <form method="POST">
+            {% csrf_token %}
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Product Name</th>
+                        <th>Price</th>
+                        <th>Quantity</th>
+                        <th>Subtotal</th>
+                        <th>Added Date</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in cart %}
+                        <tr>
+                            <td>{{ item.pname }}</td>
+                            <td>₹{{ item.discount_price|floatformat:2 }}</td>
+                            <td>
+                                <input type="number" name="qt_{{ item.cart_id }}" value="{{ item.qt }}" min="1" class="form-control" />
+                            </td>
+                            <td>₹{{ item.subtotal|floatformat:2 }}</td>
+                            <td>{{ item.added_date }}</td>
+                            <td>
+                                {% if item.cart_id %}
+                                    <!-- Remove from cart button with cart_id -->
+                                    <a href="{% url 'remove_from_cart' item.cart_id %}" class="btn btn-danger">Remove</a>
+                                {% else %}
+                                    <!-- If no cart_id exists, don't show the remove button -->
+                                    <span class="btn btn-danger disabled">Remove</span>
+                                {% endif %}
+                                <!-- Place Order Button for each item -->
+                                <a href="{% url 'place_order' item.pname %}?qt={{ item.qt }}&price={{ item.discount_price }}" class="btn btn-success">Place Order</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <button type="submit" class="btn btn-primary">Update Cart</button>
+        </form>
+
+        <h3>Total Price: ₹{{ total_price|floatformat:2 }}</h3>
     {% else %}
         <p>Your cart is empty.</p>
     {% endif %}

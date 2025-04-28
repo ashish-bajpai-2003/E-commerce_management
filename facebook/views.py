@@ -7,13 +7,60 @@ from django.core.mail import send_mail
 from django.contrib.auth.decorators import login_required
 from .models import CustomUser,UserOTP
 from django.db.models import Q
-from .forms import Myform ,OTPForm
-from .models import subcategory,myproduct,Category, cart
+from .forms import Myform ,OTPForm, CategoryForm
+from .models import Subcategory,myproduct,Category, cart, MyOrder
 from.task import send_seller_status_email
+from .forms import CategoryForm
+from django.utils import timezone
+from datetime import datetime
+
 def home(request):
-    data=Category.objects.all().order_by('-id')
-    md={"cdata":data}
-    return render(request, 'home.html',md)
+    data = Category.objects.all().order_by('-id')
+    is_seller = False
+    if request.user.is_authenticated and request.user.user_type == 'seller':
+        is_seller = True  # Only show form to sellers
+
+    if request.method == 'POST' and is_seller:  # Allow only sellers to add categories
+        form = CategoryForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Category added successfully!")
+            return redirect('home')
+    else:
+        form = CategoryForm(initial={'cdate': timezone.now().date()})
+
+    md = {
+        "cdata": data,
+        "form": form,
+        "is_seller": is_seller
+    }
+    return render(request, 'home.html', md)
+
+
+def category_edit(request, category_id):
+    if not request.user.is_authenticated or request.user.user_type != 'seller':
+        messages.error(request, "You are not authorized to edit categories.")
+        return redirect('home')
+    category = get_object_or_404(Category, pk=category_id)
+
+    if request.method == 'POST':
+        form = CategoryForm(request.POST, request.FILES, instance=category)
+        if form.is_valid():
+            form.save()
+            return redirect('home')
+    else:
+        form = CategoryForm(instance=category)
+
+    return render(request, 'category_edit.html', {'form': form})
+
+# Delete Category
+def category_delete(request, category_id):
+    if not request.user.is_authenticated or request.user.user_type != 'seller':
+        messages.error(request, "You are not authorized to delete categories.")
+        return redirect('home')
+    category = get_object_or_404(Category, pk=category_id)
+    category.delete()
+    return redirect('home')
 
 def about(request):
     return render(request,'aboutus.html')
@@ -225,12 +272,17 @@ def user_logout(request):
     return redirect('login')
 
 
-from .models import subcategory,myproduct
+from .models import Subcategory,myproduct
 
 def product(request):
     catid=request.GET.get('cid')
     subcatid=request.GET.get('sid')
-    sdata=subcategory.objects.all().order_by('-id')
+
+
+    if catid:
+        sdata=Subcategory.objects.filter(category_name=catid).order_by('-id')
+    else:
+        sdata = Subcategory.objects.all().order_by('-id')
     if subcatid is not None:
         pdata=myproduct.objects.all().filter(subcategory_name=subcatid)
     elif catid is not None:
@@ -252,7 +304,7 @@ def mycartu(request):
 
 
 from django.shortcuts import render, redirect, get_object_or_404
-from .models import Product, myproduct
+from .models import  myproduct
 from .forms import ProductForm
 
 def seller_dashboard(request):
@@ -297,10 +349,11 @@ def product_delete(request, pk):
     product.delete()
     return redirect('seller_dashboard')
 
+from datetime import datetime
 
 def mycart(request):
     if request.method == "GET":
-        cname = request.GET.get("cname")
+        # Extract parameters from the GET request
         pname = request.GET.get("pname")
         price = request.GET.get("price")
         discount_price = request.GET.get("discount_price")
@@ -308,36 +361,127 @@ def mycart(request):
         pw = request.GET.get("pw")
         qt = request.GET.get("qt")
 
-        
+        # If all necessary parameters are not provided, redirect to the cart
+        if not (pname and price and discount_price and ppic and pw):
+            return redirect('showcart') 
+
+        # Set quantity to 1 if not a valid quantity
         if qt and qt.isdigit() and int(qt) > 0:
             qt = int(qt)  
         else:
             qt = 1  
 
+        # Calculate total price for this item
+        total_price = float(discount_price) * qt  
+
+        # Add the item to the cart
         cart = request.session.get('cart', [])
         item = {
+            'cart_id': pw,  # Use product id as unique cart id
             'pname': pname,
             'price': price,
             'discount_price': discount_price,
             'ppic': ppic,
-            'pw': pw,
             'qt': qt,
+            'total_price': total_price,  # Store calculated total price
+            'added_date': datetime.now().strftime("%Y-%m-%d %H:%M:%S")  # Add date of addition
         }
         cart.append(item)
         request.session['cart'] = cart
         request.session.modified = True
 
+        # Redirect to cart page after adding item
         return redirect('showcart')
 
+    elif request.method == "POST":
+        # Handling POST request to update cart
+        cart = request.session.get('cart', [])
+        
+        # Iterate through each item in the cart and update its quantity if changed
+        for item in cart:
+            cart_id = item.get('cart_id')
+            # Get the updated quantity from the form
+            new_quantity = request.POST.get(f'qt_{cart_id}')
+            
+            if new_quantity and new_quantity.isdigit() and int(new_quantity) > 0:
+                new_quantity = int(new_quantity)
+                item['qt'] = new_quantity
+                # Recalculate total price based on new quantity
+                item['total_price'] = new_quantity * float(item['discount_price'])
+                
+        # Save the updated cart back to the session
+        request.session['cart'] = cart
+        request.session.modified = True
+
+        # Redirect to cart page after updating quantities
+        return redirect('showcart')
+
+    else:
+        # If the method is neither GET nor POST (unlikely case)
+        cart = request.session.get('cart', [])
+        total_price = sum(item['total_price'] for item in cart)  # Calculate total cart price
+        return render(request, 'cart.html', {'cart': cart, 'total_price': total_price})
+    
+def update_quantity(request, cart_id):
+ 
+    new_qty = request.GET.get("quantity")
+    
+  
+    if new_qty and new_qty.isdigit() and int(new_qty) > 0:
+        new_qty = int(new_qty)
+    else:
+        return redirect('showcart')
+
+    cart = request.session.get('cart', [])
+    
+    # Update quantity and recalculate total price
+    for item in cart:
+        if item['cart_id'] == cart_id:
+            item['qt'] = new_qty
+            item['total_price'] = float(item['discount_price']) * new_qty
+            break
+
+    request.session['cart'] = cart
+    request.session.modified = True
+    return redirect('showcart') 
+
+
+def remove_from_cart(request, cart_id):
+    cart = request.session.get('cart', [])
+    
+    cart = [item for item in cart if item['cart_id'] != cart_id]
+    
+    request.session['cart'] = cart
+    request.session.modified = True
+    return redirect('showcart') 
 
 
 def showcart(request):
     cart = request.session.get('cart', [])
-    return render(request, 'cart.html', {'cart': cart})
+    total_price = 0
+    updated_cart = []
 
+    if request.method == 'POST':
+        updated_cart_items = request.POST.getlist('qt')
+        for i, item in enumerate(cart):
+            if updated_cart_items[i].isdigit() and int(updated_cart_items[i]) > 0:
+                item['qt'] = int(updated_cart_items[i])  # Update quantity
+                item['subtotal'] = float(item['discount_price']) * item['qt']
+            total_price += item['subtotal']
+        
+        request.session['cart'] = cart
+        request.session.modified = True
+        return redirect('showcart')  # Redirect to show updated cart
 
+    for item in cart:
+        try:
+            item['subtotal'] = float(item['discount_price']) * int(item['qt'])
+            total_price += item['subtotal']
+        except (ValueError, TypeError):
+            continue
+        updated_cart.append(item)
 
-
+    return render(request, 'cart.html', {'cart': updated_cart, 'total_price': total_price})
 
 def product_add(request):
     if not request.user.is_authenticated:
@@ -373,12 +517,16 @@ def product_search(request):
         'query': query
     })
 
+
+
 @login_required
 def myorders(request):
-    # agar order model bana hai, fetch karo, varna session-based orders dikhao
-    orders = Order.objects.filter(user=request.user).order_by('-created_at')
-    return render(request, 'myorders.html', {'orders': orders})
+    # Fetch orders for the logged-in user
+    orders = MyOrder.objects.filter(userid=request.user).order_by('-order_date')
 
+    print(f"Orders: {orders}")
+
+    return render(request, 'myorders.html', {'orders': orders})
 
 
 
@@ -387,3 +535,48 @@ def myorders(request):
 def user_cart_products(request):
     user_cart_items = cart.objects.filter(userid=request.user.username)
     return render(request, 'user_cart_products.html', {'cart_items': user_cart_items})
+
+
+
+def subcategory_view(request, cid):
+    subcategories = Subcategory.objects.filter(category_id=cid)
+    return render(request, 'subcategory.html', {'subcategories': subcategories})
+
+
+
+
+def place_order(request, product_name):
+    if request.method == 'GET':
+        # Get the product details from the URL parameters
+        quantity = request.GET.get('qt')
+        price = request.GET.get('price')
+        
+        # Ensure quantity and price are valid
+        if quantity and price:
+            quantity = int(quantity)
+            price = float(price)
+            
+            # Create a new order
+            order = MyOrder.objects.create(
+                userid=request.user,  # assuming the user is logged in
+                product_name=product_name,
+                quantity=quantity,
+                price=price,
+                total_price=quantity * price,
+                order_date=timezone.now(),
+                status='Pending',  # Set the status to "Pending" by default
+            )
+
+            # Debugging: Check if the order is created
+            print(f"Order Created: {order}")
+            
+            # Optionally: Remove the item from the cart after placing the order
+            cart = request.session.get('cart', [])
+            cart = [item for item in cart if item['pname'] != product_name]
+            request.session['cart'] = cart
+            request.session.modified = True
+            
+            # Redirect to the myorders page
+            return redirect('myorders')
+    
+    return redirect('showcart')

@@ -1,5 +1,6 @@
 from django import forms
 from captcha.fields import CaptchaField
+from .models import Category
 
 class OTPForm(forms.Form):
     otp = forms.CharField(
@@ -18,7 +19,7 @@ from .models import myproduct
 class ProductForm(forms.ModelForm):
     class Meta:
         model = myproduct
-        fields = ['product_name', 'price','discount_price', 'product_quantity', 'product_pic']
+        fields = ['product_name', 'price','discount_price', 'product_quantity', 'product_pic', 'product_category', 'subcategory_name']
 
 
 
@@ -33,6 +34,12 @@ class Myform(forms.Form):
         ('admin', 'Admin'),
     ])
     captcha = CaptchaField()
+
+
+class CategoryForm(forms.ModelForm):
+    class Meta:
+        model = Category
+        fields = ['cname', 'cpic', 'cdate']
 
 
 

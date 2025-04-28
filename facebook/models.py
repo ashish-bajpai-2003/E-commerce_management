@@ -38,10 +38,10 @@ class Category(models.Model):
     def __str__(self):
         return  self.cname
     
-class subcategory(models.Model):
+class Subcategory(models.Model):
     category_name=models.ForeignKey(Category,on_delete=models.CASCADE)
     subcategory_name=models.CharField(max_length=100,null=True)
-
+    # subcategory_image = models.ImageField(upload_to='subcategory_image/', blank=True,null=True)
     def __str__(self):
         return self.subcategory_name
     
@@ -49,7 +49,7 @@ class subcategory(models.Model):
 class myproduct(models.Model):
     seller = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     product_category=models.ForeignKey(Category,on_delete=models.CASCADE,null=True,blank=True)
-    subcategory_name=models.ForeignKey(subcategory,on_delete=models.CASCADE,null=True,blank=True)
+    subcategory_name=models.ForeignKey(Subcategory,on_delete=models.CASCADE,null=True,blank=True)
     product_name=models.CharField(max_length=200,null=True)
     price=models.IntegerField()
     discount_price=models.IntegerField(null=True, blank=True)
@@ -65,16 +65,16 @@ class myproduct(models.Model):
         return 'No Category Assigned'
 
 
-class Product(models.Model):
-    seller = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    name = models.CharField(max_length=100)
-    description = models.TextField()
-    price = models.DecimalField(max_digits=10, decimal_places=2)
-    image = models.ImageField(upload_to='products/', blank=True, null=True)
-    created_at = models.DateTimeField(auto_now_add=True)
+# class Product(models.Model):
+#     seller = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+#     name = models.CharField(max_length=100)
+#     description = models.TextField()
+#     price = models.DecimalField(max_digits=10, decimal_places=2)
+#     image = models.ImageField(upload_to='products/', blank=True, null=True)
+#     created_at = models.DateTimeField(auto_now_add=True)
 
-    def __str__(self):
-        return self.name
+#     def __str__(self):
+#         return self.name
     
 
 
@@ -90,7 +90,7 @@ class cart(models.Model):
     pw=models.CharField(max_length=200,null=True)
     added_date=models.DateField()
 
-class myorder(models.Model):
+class MyOrder(models.Model):
     userid = models.CharField(max_length=200, null=True)
     product_name = models.CharField(max_length=200)
     quantity = models.IntegerField(null=True)
