@@ -28,12 +28,16 @@ urlpatterns = [
     path('my-products/', views.user_cart_products, name='user_cart_products'),
     path('subcategory/<int:cid>/', views.subcategory_view, name='subcategory'),
     path('category/edit/<int:category_id>/', views.category_edit, name='category_edit'),
+    path('category/edit/<int:category_id>/', views.category_delete, name='category_delete'),
     path('cart/', views.showcart, name='showcart'),
     path('cart/update/<str:cart_id>/', views.update_quantity, name='update_quantity'),
     path('cart/remove/<str:cart_id>/', views.remove_from_cart, name='remove_from_cart'),
     path('place_order/<str:product_name>/', views.place_order, name='place_order'),
+    path('add/category/', views.add_category, name='add_category'),
+    path('add/subcategory/', views.add_subcategory, name='add_subcategory'),
+    # path('admin/delete-product/<int:pid>/', views.delete_product, name='delete_product'),
 
 
 ]
-if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+# if settings.DEBUG:
+#     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

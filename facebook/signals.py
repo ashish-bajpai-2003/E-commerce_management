@@ -3,9 +3,9 @@
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.core.mail import send_mail
-from .models import myproduct
+from .models import Myproduct
 
-@receiver(post_save, sender=myproduct)
+@receiver(post_save, sender=Myproduct)
 def send_stock_alert(sender, instance, **kwargs):
     if instance.product_quantity == 0:
         send_mail(

@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import CustomUser,Category,Subcategory,myproduct, cart,MyOrder
+from .models import CustomUser,Category,Subcategory,Myproduct, cart,MyOrder
 
 class CustomUserAdmin(UserAdmin):
     model = CustomUser
@@ -28,7 +28,7 @@ class SubcategoryAdmin(admin.ModelAdmin):
 admin.site.register(Subcategory,SubcategoryAdmin)
 
 
-class myproductAdmin(admin.ModelAdmin):
+class MyproductAdmin(admin.ModelAdmin):
     list_display = ('id','product_category',
                     'subcategory_name', 'product_name','price','discount_price',
                     'product_pic','total_discount','product_quantity','pdate')
@@ -38,7 +38,7 @@ class myproductAdmin(admin.ModelAdmin):
         return obj.product_category.cname if obj.product_category else '—'
     get_category.short_description = 'Category'
 
-admin.site.register(myproduct,myproductAdmin)
+admin.site.register(Myproduct,MyproductAdmin)
 
 
 

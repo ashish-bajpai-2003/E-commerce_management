@@ -16,10 +16,12 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path,include
+from facebook import views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('',include('facebook.urls')),
     path('captcha/',include('captcha.urls')),
+    path('delete-product/<int:pid>/', views.delete_product, name='delete_product'),
     # path('',views.home,name='home'),
     # path('signup/',views.signup,name='signup'),
     # path('login/',views.user_login,name='userlogin'),

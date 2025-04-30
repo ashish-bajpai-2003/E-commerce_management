@@ -16,6 +16,12 @@
             <a class="nav-link active" aria-current="page" href="{% url 'aboutus' %}">About</a>
           </li>
           {% if request.user.is_authenticated %} 
+
+          <li class="nav-item">
+            <a class="nav-link active" aria-current="page" href="{% url 'login' %}">Login</a>
+          </li>
+
+
           {% if user.user_type == 'admin' %}
           <a class="nav-link text-black" href="{% url 'admin_dashboard' %}">Dashboard</a>
           {% elif user.user_type == 'seller' %}
@@ -33,9 +39,9 @@
           </li>
                
           </li>  
-            <li class="nav-item">
+            {% comment %} <li class="nav-item">
               <a class="nav-link active" aria-current="page" href="{% url 'login' %}">Login</a>
-            </li>
+            </li> {% endcomment %}
           {% endif %}
           <li class="nav-item">
             <a class="nav-link active" aria-current="page" href="{% url 'products' %}">Product</a>

@@ -21,7 +21,7 @@
             </div>
         </div>
     </div>
-</div>
+
 
 <!-- Category Section -->
 
@@ -31,9 +31,9 @@
         <div class="fs-3 heading">Shop By <b class="txt-mycolor">Categories</b></div>
         
         <!-- Button to Open Modal to Add Category -->
-        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addCategoryModal">
+        {% comment %} <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addCategoryModal">
             + Add Category
-        </button>
+        </button> {% endcomment %}
     </div>
   {% endif %}
 
@@ -47,19 +47,19 @@
                     </a>
                     {% if is_seller %}
                     <!-- Edit & Delete buttons -->
-                    <div class="d-flex justify-content-center">
+                    {% comment %} <div class="d-flex justify-content-center">
                         <a href="{% url 'category_edit' x.id %}" class="btn btn-sm btn-warning me-1">Edit</a>
                         <a href="{% url 'category_delete' x.id %}" class="btn btn-sm btn-danger">Delete</a>
-                    </div>
+                    </div> {% endcomment %}
                     {% endif %}
                 </div>
             </div>
         </div>
     {% endfor %}
 </div>
-
+</div>
 <!-- Modal for Adding New Category -->
-<div class="modal fade" id="addCategoryModal" tabindex="-1" aria-labelledby="addCategoryModalLabel" aria-hidden="true">
+{% comment %} <div class="modal fade" id="addCategoryModal" tabindex="-1" aria-labelledby="addCategoryModalLabel" aria-hidden="true"> 
   <div class="modal-dialog">
     <div class="modal-content">
       <form method="POST" enctype="multipart/form-data">
@@ -77,6 +77,6 @@
       </form>
     </div>
   </div>
-</div>
+</div> {% endcomment %}
 
 {% endblock content %}
