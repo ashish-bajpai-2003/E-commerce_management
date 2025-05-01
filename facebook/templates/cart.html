@@ -53,4 +53,19 @@
     {% endif %}
 </div>
 
+
+
+
+
+
+{% if product.product_quantity != "0" %}
+    <form method="post" action="{% url 'mycarts' %}">
+        {% csrf_token %}
+        <button type="submit">Add to Cart</button>
+    </form>
+{% else %}
+    <button disabled style="background-color: gray;">Out of Stock</button>
+{% endif %}
+
+
 {% endblock %}

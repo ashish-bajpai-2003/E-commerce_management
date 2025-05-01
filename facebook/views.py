@@ -16,18 +16,6 @@ from datetime import datetime
 
 def home(request):
     data = Category.objects.all().order_by('-id')
-    # is_seller = False
-    # if request.user.is_authenticated and request.user.user_type == 'seller':
-    #     is_seller = True  
-    # if request.method == 'POST' and is_seller:
-    #     form = CategoryForm(request.POST, request.FILES)
-    #     if form.is_valid():
-    #         form.save()
-    #         messages.success(request, "Category added successfully!")
-    #         return redirect('home')
-    # else:
-    #     form = CategoryForm(initial={'cdate': timezone.now().date()})
-
     md = {
         "cdata": data,
         # "form": form,
@@ -307,10 +295,6 @@ def product(request):
     return render(request,'product.html',md)
 
 
-def mycartu(request):
-    user=request.objects.get('user')
-    return render(request,'mycart.html',{'user':user})
-
 
 
 
@@ -367,7 +351,6 @@ from datetime import datetime
 
 def mycart(request):
     if request.method == "GET":
-        # Extract parameters from the GET request
         pname = request.GET.get("pname")
         price = request.GET.get("price")
         discount_price = request.GET.get("discount_price")
@@ -375,67 +358,62 @@ def mycart(request):
         pw = request.GET.get("pw")
         qt = request.GET.get("qt")
 
-        # If all necessary parameters are not provided, redirect to the cart
+        print("Pname from GET:", pname)
+        product = Myproduct.objects.get(product_name=pname)
+        stock = int(product.product_quantity)
+       
+
+        if int(qt) > product.stock:
+            return HttpResponse(f"<script>alert('Only {stock} item(s) in stock'); location.href='/product/';</script>")
+
+        if int(qt) <= 0:
+            return HttpResponse("<script>alert('Add a valid product quantity'); location.href='/product/';</script>")
+
         if not (pname and price and discount_price and ppic and pw):
             return redirect('showcart') 
 
-        # Set quantity to 1 if not a valid quantity
-        if qt and qt.isdigit() and int(qt) > 0:
-            qt = int(qt)  
-        else:
-            qt = 1  
+        qt = int(qt)
+        total_price = float(discount_price) * qt
 
-        # Calculate total price for this item
-        total_price = float(discount_price) * qt  
-
-        # Add the item to the cart
         cart = request.session.get('cart', [])
         item = {
-            'cart_id': pw,  # Use product id as unique cart id
+            'cart_id': pw,
             'pname': pname,
             'price': price,
             'discount_price': discount_price,
             'ppic': ppic,
             'qt': qt,
-            'total_price': total_price,  # Store calculated total price
-            'added_date': datetime.now().strftime("%Y-%m-%d %H:%M:%S")  # Add date of addition
+            'total_price': total_price,
+            'added_date': datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         }
         cart.append(item)
         request.session['cart'] = cart
         request.session.modified = True
 
-        # Redirect to cart page after adding item
+        product.product_quantity = str(stock - qt)
+        product.save()
+
         return redirect('showcart')
 
     elif request.method == "POST":
-        # Handling POST request to update cart
         cart = request.session.get('cart', [])
-        
-        # Iterate through each item in the cart and update its quantity if changed
         for item in cart:
             cart_id = item.get('cart_id')
-            # Get the updated quantity from the form
             new_quantity = request.POST.get(f'qt_{cart_id}')
-            
             if new_quantity and new_quantity.isdigit() and int(new_quantity) > 0:
                 new_quantity = int(new_quantity)
                 item['qt'] = new_quantity
-                # Recalculate total price based on new quantity
                 item['total_price'] = new_quantity * float(item['discount_price'])
-                
-        # Save the updated cart back to the session
         request.session['cart'] = cart
         request.session.modified = True
-
-        # Redirect to cart page after updating quantities
         return redirect('showcart')
 
     else:
-        # If the method is neither GET nor POST (unlikely case)
         cart = request.session.get('cart', [])
-        total_price = sum(item['total_price'] for item in cart)  # Calculate total cart price
+        total_price = sum(item['total_price'] for item in cart)
         return render(request, 'cart.html', {'cart': cart, 'total_price': total_price})
     
+
 def update_quantity(request, cart_id):
  
     new_qty = request.GET.get("quantity")
@@ -448,7 +426,6 @@ def update_quantity(request, cart_id):
 
     cart = request.session.get('cart', [])
     
-    # Update quantity and recalculate total price
     for item in cart:
         if item['cart_id'] == cart_id:
             item['qt'] = new_qty
@@ -535,7 +512,6 @@ def product_search(request):
 
 @login_required
 def myorders(request):
-    # Fetch orders for the logged-in user
     orders = MyOrder.objects.filter(userid=request.user).order_by('-order_date')
 
     print(f"Orders: {orders}")
@@ -557,45 +533,42 @@ def subcategory_view(request, cid):
     return render(request, 'subcategory.html', {'subcategories': subcategories})
 
 
-
-
 def place_order(request, product_name):
     if request.method == 'GET':
-        # Get the product details from the URL parameters
         quantity = request.GET.get('qt')
         price = request.GET.get('price')
-        
-        # Ensure quantity and price are valid
+
         if quantity and price:
             quantity = int(quantity)
             price = float(price)
-            
-            # Create a new order
+
+            product = get_object_or_404(Myproduct, product_name=product_name)
+
             order = MyOrder.objects.create(
-                userid=request.user,  # assuming the user is logged in
-                product_name=product_name,
+                userid=request.user,
+                product=product,
+                product_name=product.product_name,
                 quantity=quantity,
                 price=price,
                 total_price=quantity * price,
+                product_picture=product.product_pic.url if product.product_pic else '',
+                pw=product.id,
                 order_date=timezone.now(),
-                status='Pending',  # Set the status to "Pending" by default
+                status='Pending',
             )
 
-            # Debugging: Check if the order is created
+         
             print(f"Order Created: {order}")
-            
-            # Optionally: Remove the item from the cart after placing the order
+            product.stock -= quantity  
+            product.save() 
+
             cart = request.session.get('cart', [])
             cart = [item for item in cart if item['pname'] != product_name]
             request.session['cart'] = cart
             request.session.modified = True
-            
-            # Redirect to the myorders page
+
             return redirect('myorders')
-    
     return redirect('showcart')
-
-
 
 
 @login_required

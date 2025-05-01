@@ -31,7 +31,7 @@ admin.site.register(Subcategory,SubcategoryAdmin)
 class MyproductAdmin(admin.ModelAdmin):
     list_display = ('id','product_category',
                     'subcategory_name', 'product_name','price','discount_price',
-                    'product_pic','total_discount','product_quantity','pdate')
+                    'product_pic','total_discount','product_quantity','pdate','stock')
     
 
     def get_category(self, obj):
@@ -49,5 +49,5 @@ class cartAdmin(admin.ModelAdmin):
 
 @admin.register(MyOrder)
 class MyOrderAdmin(admin.ModelAdmin):
-    list_display = ('id','userid','product_name','quantity','price','total_price','product_picture','pw','status','order_date')
+    list_display = ('id','userid','product_name','quantity','price','total_price','product_picture','pw','status','order_date', )
 

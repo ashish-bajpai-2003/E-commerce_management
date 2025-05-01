@@ -62,7 +62,7 @@
           {% if request.user.is_authenticated %}
             {% if user.user_type == 'customer' %}
               <li class="nav-item">
-              <a class="nav-link active" href="{% url 'mycart' %}">
+              <a class="nav-link active" href="{% url 'mycarts' %}">
               <i class="fa-solid fa-cart-shopping"></i> My Cart
               </a>
               </li>

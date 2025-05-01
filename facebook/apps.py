@@ -6,3 +6,4 @@ class FacebookConfig(AppConfig):
     name = 'facebook'
     def ready(self):
         import facebook.signals
+

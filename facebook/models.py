@@ -35,6 +35,7 @@ class Category(models.Model):
     cname=models.CharField(max_length=200,null=True)
     cpic=models.ImageField(upload_to='static/category/',null=True, blank=True)
     cdate=models.DateField()
+    email = models.EmailField()
     def __str__(self):
         return  self.cname
     
@@ -51,6 +52,7 @@ class Myproduct(models.Model):
     subcategory_name=models.ForeignKey(Subcategory,on_delete=models.CASCADE,null=True,blank=True)
     product_name=models.CharField(max_length=200,null=True)
     price=models.IntegerField()
+    stock = models.PositiveIntegerField(default=0)
     discount_price=models.IntegerField(null=True, blank=True)
     product_pic=models.ImageField(upload_to='static/product/',null=True)
     total_discount=models.IntegerField(null=True, blank=True)
@@ -84,6 +86,7 @@ class MyOrder(models.Model):
     product_picture = models.CharField(max_length=300, null=True)
     pw = models.CharField(max_length=200, null=True)
     order_date = models.DateField(null=True)
+    product = models.ForeignKey(Myproduct, on_delete=models.CASCADE)
     status=models.CharField(max_length=200,null=True)
     
 

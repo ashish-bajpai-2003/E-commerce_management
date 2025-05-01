@@ -6,78 +6,91 @@
     Our <b class="txt-mycolor">Product <i class="fa-brands fa-product-hunt"></i></b>
 </div>
 
-{% comment %} <div class="row">
-    <div class="col-sm-3">
-        <ul class="list-group">
-            {% for i in subcat %}
-            <a href="/product?sid={{i.id}}" style="text-decoration:none;font-family:STXinwei;">
-                <li class="list-group-item fs-3">
-                    <img src="/{{i.subcategory_image.url}}" alt="{{i.subcategory_name}}" style="width: 30px; height: 30px; margin-right: 10px;" />
-                    {{i.subcategory_name}}
-                </li>
-            </a>
-            {% endfor %}
-        </ul>
-    </div> {% endcomment %}
 
     <div class="col-sm-9">
         <div class="row">
             {% for x in pdata %}
-            <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
-                <div class="card h-100">
-                    <img src="/{{ x.product_pic }}" class="card-img-top" style="height: 200px; object-fit: cover;" />
-                    <div class="card-body">
-                        <b>{{x.veg_name}}</b><br/>
-                        <span class="text-muted">{{x.product_quantity}} </span><br/>
-                        <s class="text-danger"><i class="fa-solid fa-indian-rupee-sign"></i>{{x.price}}</s>
-                        <b><i class="fa-solid fa-indian-rupee-sign"></i>{{x.discount_price}}</b>
-                    </div>
+<div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+    <div class="card h-100">
+        <img src="/{{ x.product_pic }}" class="card-img-top" style="height: 200px; object-fit: cover;" />
+        <div class="card-body">
+            <b>{{ x.veg_name }}</b><br/>
+            <span class="text-muted">In Stock: {{ x.stock }}</span><br/>
+            <s class="text-danger"><i class="fa-solid fa-indian-rupee-sign"></i>{{ x.price }}</s>
+            <b><i class="fa-solid fa-indian-rupee-sign"></i>{{ x.discount_price }}</b>
+        </div>
 
-                    <div class="input-group my-2">
-                        <span class="input-group-text" onclick="funm{{x.id}}()">
-                            <i class="fa-solid fa-minus"></i>
-                        </span>
-                        <input type="text" value="0" id="txtcard{{x.id}}" readonly class="form-control text-center">
-                        <span class="input-group-text" onclick="funp{{x.id}}()">
-                            <i class="fa-solid fa-plus"></i>
-                        </span>
-                    </div>
-
-                    <form method="get" action="{% url 'mycart' %}">
-                        <input type="hidden" name="pname" value="{{x.product_name}}">
-                        <input type="hidden" name="price" value="{{x.price}}">
-                        <input type="hidden" name="discount_price" value="{{x.discount_price}}">
-                        <input type="hidden" name="ppic" value="{{x.product_pic}}">
-                        <input type="hidden" name="pw" value="{{x.product_quantity}}">
-                        <input type="hidden" name="qt" id="hiddenqt{{x.id}}" value="0">
-                        <input type="submit" class="btn bg-mycolor text-light w-100" value="Add" onclick="updateHiddenQt{{x.id}}()">
-                    </form>
-                </div>
+        {% if x.stock == 0 %}
+            <p style="color: red;">Out of Stock</p>
+        {% else %}
+            <div class="input-group my-2">
+                <span class="input-group-text" onclick="funm{{x.id}}()">
+                    <i class="fa-solid fa-minus"></i>
+                </span>
+                <input type="text" value="0" id="txtcard{{x.id}}" readonly class="form-control text-center">
+                <span class="input-group-text" onclick="funp{{x.id}}()">
+                    <i class="fa-solid fa-plus"></i>
+                </span>
             </div>
 
-            <script>
-                var i{{x.id}} = 0;
-                var txtc{{x.id}} = document.getElementById("txtcard{{x.id}}");
+            <form method="get" action="{% url 'mycarts' %}" onsubmit="return validateQt{{x.id}}({{x.stock}});">
+                <input type="hidden" name="pname" value="{{x.product_name}}">
+                <input type="hidden" name="price" value="{{x.price}}">
+                <input type="hidden" name="discount_price" value="{{x.discount_price}}">
+                <input type="hidden" name="ppic" value="{{x.product_pic}}">
+                <input type="hidden" name="pw" value="{{x.product_quantity}}">
+                <input type="hidden" name="qt" id="hiddenqt{{x.id}}" value="0">
+                <input type="submit" class="btn bg-mycolor text-light w-100" value="Add" onclick="updateHiddenQt{{x.id}}()">
+            </form>
+        {% endif %}
+    </div>
+</div>
 
-                function funp{{x.id}}() {
-                    i{{x.id}}++;
-                    txtc{{x.id}}.value = i{{x.id}};
-                }
+<script>
+    var i{{x.id}} = 0;
+    var txtc{{x.id}} = document.getElementById("txtcard{{x.id}}");
 
-                function funm{{x.id}}() {
-                    if (i{{x.id}} > 0) {
-                        i{{x.id}}--;
-                        txtc{{x.id}}.value = i{{x.id}};
-                    }
-                }
+    function funp{{x.id}}() {
+        if (i{{x.id}} < {{x.stock}}) {
+            i{{x.id}}++;
+            txtc{{x.id}}.value = i{{x.id}};
+        }
+    }
 
-                function updateHiddenQt{{x.id}}() {
-                    document.getElementById("hiddenqt{{x.id}}").value = txtc{{x.id}}.value;
-                }
-            </script>
-            {% endfor %}
+    function funm{{x.id}}() {
+        if (i{{x.id}} > 0) {
+            i{{x.id}}--;
+            txtc{{x.id}}.value = i{{x.id}};
+        }
+    }
+
+    function updateHiddenQt{{x.id}}() {
+        document.getElementById("hiddenqt{{x.id}}").value = i{{x.id}};
+    }
+
+    function validateQt{{x.id}}(stock) {
+        if (i{{x.id}} <= 0) {
+            alert("Please select at least 1 quantity.");
+            return false;
+        }
+        if (i{{x.id}} > stock) {
+            alert("Only " + stock + " items are available in stock.");
+            return false;
+        }
+        return true;
+    }
+</script>
+{% endfor %}
         </div>
     </div>
 </div>
+
+
+
+{% comment %} {% if product.product_quantity == "0" %}
+    <p style="color: red;">Out of Stock</p>
+{% else %}
+    <p>In Stock: {{ product.product_quantity }}</p>
+{% endif %} {% endcomment %}
 
 {% endblock content %}
